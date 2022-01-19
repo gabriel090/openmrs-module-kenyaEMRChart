@@ -4153,13 +4153,12 @@ CREATE PROCEDURE sp_update_etl_person_address(IN last_update_time DATETIME)
     SELECT "Completed processing person_address data ", CONCAT("Time: ", NOW());
     END$$
 
-
 -- -------------Update etl_cervical_cancer_screening-------------------------
 
 DROP PROCEDURE IF EXISTS sp_update_etl_cervical_cancer_screening$$
 CREATE PROCEDURE sp_update_etl_cervical_cancer_screening(IN last_update_time DATETIME)
   BEGIN
-    SELECT "Processing HIV Follow-up, MCH ANC and PNC forms for CAXC screening", CONCAT("Time: ", NOW());
+    SELECT "Processing CAXC screening", CONCAT("Time: ", NOW());
 
     insert into kenyaemr_etl.etl_cervical_cancer_screening(
       uuid,
@@ -4183,7 +4182,6 @@ CREATE PROCEDURE sp_update_etl_cervical_cancer_screening(IN last_update_time DAT
       referral_facility,
       referral_reason,
       next_appointment_date,
-      encounter_type,
       voided
     )
       select
@@ -4234,11 +4232,10 @@ CREATE PROCEDURE sp_update_etl_cervical_cancer_screening(IN last_update_time DAT
                                                              when 159008 then 'Large lesion, Suspect cancer'
                                                              when 5622 then 'Other' else "" end), "" )) as referral_reason,
                                 max(if(o.concept_id=5096,o.value_datetime,null)) as next_appointment_date,
-                                f.name as encounter_type,
                                 e.voided as voided
       from encounter e
         inner join person p on p.person_id=e.patient_id and p.voided=0
-        inner join form f on f.form_id=e.form_id and f.uuid in ('e8f98494-af35-4bb8-9fc7-c409c8fed843','72aa78e0-ee4b-47c3-9073-26f3b9ecc4a7','22c68f86-bbf0-49ba-b2d1-23fa7ccf0259','0c93b93c-bfef-4d2a-9fbe-16b59ee366e7')
+        inner join form f on f.form_id=e.form_id and f.uuid ='0c93b93c-bfef-4d2a-9fbe-16b59ee366e7'
         inner join obs o on o.encounter_id = e.encounter_id and o.concept_id in (164934,163589,160288,164181,165383,163042,165266,160632,165267,165268,1887,5096) and o.voided=0
       where
         e.date_created >= last_update_time
@@ -4251,6 +4248,7 @@ CREATE PROCEDURE sp_update_etl_cervical_cancer_screening(IN last_update_time DAT
     ON DUPLICATE KEY UPDATE visit_date=VALUES(visit_date), encounter_provider=VALUES(encounter_provider),screening_method = VALUES(screening_method), screening_result = VALUES(screening_result);
     SELECT "Completed processing Cervical Cancer Screening", CONCAT("Time: ", NOW());
 
+<<<<<<< HEAD
     update kenyaemr_etl.etl_cervical_cancer_screening scr,
       (
         SELECT
@@ -4305,6 +4303,10 @@ CREATE PROCEDURE sp_update_etl_cervical_cancer_screening(IN last_update_time DAT
 
     SELECT "Completed processing  HIV Follow-up, MCH ANC and PNC forms for CAXC screening", CONCAT("Time: ", NOW());
     END$$
+=======
+    SELECT "Completed processing CAXC screening", CONCAT("Time: ", NOW());
+    END $$
+>>>>>>> e4273fd (Dropped obsolete columns and update DMLs in cervical cancer screening etl. Removed PMTCT and greencard as sources of data for Cervical cancer screening. Availed Cervical Cancer screening and KP related data in datatools)
 
 DROP PROCEDURE IF EXISTS sp_update_etl_contact$$
 CREATE PROCEDURE sp_update_etl_contact(IN last_update_time DATETIME)
