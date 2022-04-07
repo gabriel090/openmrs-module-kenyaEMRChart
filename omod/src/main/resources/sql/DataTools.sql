@@ -2145,8 +2145,44 @@ ALTER TABLE kenyaemr_datatools.PrEP_verification ADD FOREIGN KEY (client_id) REF
 ALTER TABLE kenyaemr_datatools.PrEP_verification ADD INDEX(visit_date);
 SELECT "Successfully created PrEP_verification table";
 
-  -- --------------------------- populate hts_eligibility screening table ---------------------------------------------
-  create table kenyaemr_datatools.hts_eligibility_screening as
+-- Create table vmmc_enrolment
+create table kenyaemr_datatools.vmmc_circumcision_procedure as
+select
+    uuid,
+    provider,
+    patient_id,
+    visit_id,
+    visit_date,
+    location_id,
+    encounter_id,
+    (case circumcision_method when 167119 then 'Conventional Surgical' when 167120 then 'Device Circumcision' end) as circumcision_method,
+    (case surgical_circumcision_method when 167121 then 'Sleeve resection' when 167122 then 'Dorsal Slit' when 167123 then 'Forceps Guide' when 5622 then 'Other' end) as surgical_circumcision_method,
+    reason_circumcision_ineligible,
+    (case circumcision_device when 167124 then 'Shangring' when 5622 then 'Other' end) as circumcision_device,
+    specific_other_device,
+    device_size,
+    lot_number,
+    (case anaesthesia_used when 161914 then 'Local Anaesthesia' when 162797 then 'Topical Anaesthesia' end) as anaesthesia_used,
+    anaesthesia_concentration,
+    anaesthesia_volume,
+    time_of_first_placement_cut,
+    time_of_last_device_closure,
+    (case has_adverse_event when 1065 then 'Yes' when 1066 then 'No' end) as has_adverse_event,
+    adverse_event,
+    severity,
+    adverse_event_management,
+    clinician_name,
+    (case clinician_cadre when 162591 then 'MO' when 162592 then 'CO' when 1577 then 'Nurse' end ) as clinician_cadre,
+    assist_clinician_name,
+    (case assist_clinician_cadre when 162591 then 'MO' when 162592 then 'CO' when 1577 then 'Nurse' end) as assist_clinician_cadre,
+    theatre_number,
+    date_created,
+    date_last_modified,
+    voided
+from kenyaemr_etl.etl_vmmc_circumcision_procedure;
+
+  -- Create table vmmc_client_followup
+  create table kenyaemr_datatools.vmmc_client_followup as
     select
       patient_id,
       visit_id,
